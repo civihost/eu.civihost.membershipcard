@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/membercard</path>
+    <page_callback>CRM_Membershipcard_Page_Membercard</page_callback>
+    <title>Download tessera</title>
+    <access_arguments>access CiviMember</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/send-membercard</path>
+    <page_callback>CRM_Membershipcard_Form_SendMembershipCard</page_callback>
+    <title>Invia tessera</title>
+    <access_arguments>access CiviMember</access_arguments>
+  </item>
+</menu>

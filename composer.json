@@ -1,0 +1,10 @@
+{
+    "name": "civicrm/eu.civihost.membershipcard",
+    "type": "civicrm-extension",
+    "description": "Generate membership card for active members",
+    "require": {
+        "php": ">=8.2",
+        "picqer/php-barcode-generator": "^3.2",
+		    "chillerlan/php-qrcode": "^5.0"
+    }
+}
