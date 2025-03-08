@@ -1,5 +1,8 @@
 <?php
 
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
+use Civi\Token\TokenProcessor;
 use CRM_Membershipcard_ExtensionUtil as E;
 
 class CRM_Membershipcard_Utils_Memberships
@@ -48,12 +51,10 @@ class CRM_Membershipcard_Utils_Memberships
       left outer join civicrm_contact as c on m.contact_id = c.id
       left outer join civicrm_membership_payment as p on p.membership_id = if(m.owner_membership_id is null, m.id, m.owner_membership_id)
       left outer join civicrm_contribution as contribution on contribution.id = p.contribution_id
-      -- left outer join civicrm_value_anno_di_rifer_22 as y on y.entity_id = p.contribution_id
       where
         {$membership_where}
         and status_id_1.is_active = 1
         and contribution.contribution_status_id = {$contributionCompletedStatusId}
-        -- and y.anno_43 = {$year}
         ";
 
     $result = [];
@@ -72,27 +73,31 @@ class CRM_Membershipcard_Utils_Memberships
 
   public static function generateMemberCard($membership, $output = FALSE)
   {
-    /*
-    $membership = self::getContactActiveMembership($contact_id, $membership_id, $year);
+    $membership = self::getContactActiveMembership($membership['contact_id'], $membership['id'], $membership['year']);
     if (!$membership) {
       return;
-    }*/
-
-    $year = $membership['year'];
-
-    $contacts = \Civi\Api4\Contact::get(TRUE)
-      ->addSelect('organization_name', 'website.url', 'email.email', 'email.is_primary')
-      ->addJoin('Website AS website', 'LEFT', ['website.contact_id', '=', 'id'], ['website.website_type_id', '=', 2])
-      ->addJoin('Email AS email', 'LEFT', ['email.contact_id', '=', 'id'])
-      ->addWhere('id', '=', $membership['chapter_id'])
-      ->execute();
-    foreach ($contacts as $contact) {
-      $membership['chapter_name'] = $contact['organization_name'];
-      $membership['chapter_url'] = $contact['website.url'];
-      if ($contact['email.is_primary']) {
-        $membership['chapter_email'] = $contact['email.email'];
-      }
     }
+
+    $select = [];
+    $custom_fields = CRM_Membershipcard_Utils_Config::get('memberships.card.custom_fields') ?? [];
+    foreach($custom_fields as $field) {
+        $select[] = $field;
+    }
+
+    if ($select) {
+        $custom_contact = civicrm_api4('Contact', 'get', [
+        'select' => $select,
+        'where' => [
+            ['id', '=', $membership['contact_id']],
+        ],
+        'checkPermissions' => FALSE,
+        ])->single();
+        foreach($custom_contact as $k => $v) {
+            $membership[str_replace('.', '_', $k)] = $v;
+        }
+            $membership['Sede_di_studio_Sede'] = 'SH.ASUS Bozen (BBB)';
+    }
+
 
     // assign info to template
     $smarty = CRM_Core_Smarty::singleton();
@@ -101,25 +106,41 @@ class CRM_Membershipcard_Utils_Memberships
     }
 
     // barcode
-    $generator = new Picqer\Barcode\BarcodeGeneratorPNG();
-    $barcode = $generator->getBarcode($membership['card_number'], $generator::TYPE_CODE_128, 2, 20, [42, 63, 108]);
-    Civi::log()->debug('barcode ' . print_r($barcode, true));
-    $smarty->assign('barcode_base64', base64_encode($barcode));
+    //$generator = new Picqer\Barcode\BarcodeGeneratorPNG();
+    //$barcode = $generator->getBarcode($membership['card_number'], $generator::TYPE_CODE_128, 2, 20, [42, 63, 108]);
+    //$smarty->assign('barcode_base64', base64_encode($barcode));
 
-    $smarty->assign('backgroundimgfront', sprintf(CRM_Membershipcard_Utils_Config::get('memberships.card.url'), $year));
+    $tokenProcessor = new TokenProcessor(Civi::dispatcher(), ['schema' => ['contactId']]);
+    $tokenProcessor->addMessage('barcode', CRM_Membershipcard_Utils_Config::get('memberships.card.barcode_text'), 'text/html');
+    $tokenProcessor->addRow(['contactId' => $membership['contact_id']]);
+    $tokenProcessor->evaluate();
+    $row = $tokenProcessor->getRow(0);
+    $barcode = trim($row->render('barcode'));
+
+    // instance will be invoked with default settings
+    $qrcode  = new QRCode;
+    $options = new QROptions;
+
+    $options->quietzoneSize = 1;
+    $qrcode->setOptions($options);
+
+    $smarty->assign('barcode', $qrcode->render($barcode));
+
+    $smarty->assign('backgroundimgfront', sprintf(CRM_Membershipcard_Utils_Config::get('memberships.card.url'), $membership['year']));
 
     // call template
     $template = 'MembershipCard.tpl';
     try {
-      $content = $smarty->fetch('CRM/Membershipcard/' . $year . '/' . $template);
+      $content = $smarty->fetch('CRM/Membershipcard/' . $membership['year'] . '/' . $template);
     } catch (\Throwable $th) {
       $content = $smarty->fetch('CRM/Membershipcard/' . $template);
     }
 
-    $fileName = E::ts('MembershipCard-%1.pdf', [1 => $year]);
+    $fileName = E::ts('MembershipCard-%1.pdf', [1 => $membership['year']]);
 
     // 'Membership Card' page format
     $pageFormat = CRM_Membershipcard_Utils_Config::get('memberships.card.page_format');
+    Civi::log()->debug('page_format: ' . $pageFormat);
 
     $pdf = CRM_Utils_PDF_Utils::html2pdf($content, $fileName, $output, $pageFormat);
     if ($output) {

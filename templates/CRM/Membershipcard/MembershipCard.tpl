@@ -32,11 +32,13 @@
         }
         main {
           display: block;
+          width: 85.00mm;
+          height: 55.0mm;
         }
         main img {
             display: block;
-            width: 210mm;
-            height: 297mm;
+            width: 85.00mm;
+            height: 55.0mm;
             position: absolute;
             top: 0;
             left: 0;
@@ -50,41 +52,38 @@
             position: absolute;
             font-weight: bold;
         }
-        #data {
-            top: 157.7mm;
-            left: 67.625mm;
-        }
-        #numero {
-            top: 157.7mm;
-            left: 116.232mm;
-        }
-        #testo {
-            top: 168mm;
-            left: 67.625mm;
-            width: 74.8mm
-        }
-        #cognome {
-            left: 84.163mm;
-            top: 182mm;
-        }
         #nome {
-            left: 84.163mm;
-            top: 189.5mm;
+          top: 34.00mm;
+          left: 3.50mm;
+          font-size: 11pt;
+          width: 52mm;
+          white-space: nowrap;
+          overflow: hidden;
         }
-        .chapter-info {
+        #chapter-info {
+          top: 42.80mm;
+          left: 40.00mm;
+        }
+        #data {
+          top: 48.70mm;
+          left: 40.00mm;
           font-size: 0.85em;
-          font-weight: normal;
-          line-height: 0.90em;
+        }
+        #barcode {
+          top: 19.0mm;
+          left: 59.5mm;
+        }
+        #barcode img {
+          height: 19.8mm;
+          width: 19.8mm;
         }
     }
   </style>
 {/literal}
 <main>
   <img src="{$backgroundimgfront}">
+  <p id="barcode"><img src="{$barcode}"></p>
+  <p id="nome">{$first_name} {$last_name}</p>
+  <p id="chapter-info">{$Sede_di_studio_Sede}</p>
   <p id="data">{$receive_date|date_format:"%d/%m/%Y"}</p>
-  <p id="numero">{$card_number}</p>
-  <p id="testo">{$chapter_name}<br>
-  <span class="chapter-info">{$chapter_email} {$chapter_url}</span></p>
-  <p id="cognome">{$last_name}</p>
-  <p id="nome">{$first_name}</p>
 </main>
