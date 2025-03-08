@@ -77,3 +77,13 @@ function membershipcard_civicrm_summaryActions(&$actions, $contactID)
     ];
   }
 }
+
+/**
+ * Implements hook_civicrm_pageRun().
+ */
+function membershipcard_civicrm_pageRun(&$page) {
+  $pageName = get_class($page);
+  if ($pageName == 'CRM_Contact_Page_View_UserDashBoard') {
+    CRM_Membershipcard_Contact_Page_View_UserDashBoard::pageRun($page);
+  }
+}

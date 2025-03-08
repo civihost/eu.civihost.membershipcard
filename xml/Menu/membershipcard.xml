@@ -4,7 +4,7 @@
     <path>civicrm/membercard</path>
     <page_callback>CRM_Membershipcard_Page_Membercard</page_callback>
     <title>Download tessera</title>
-    <access_arguments>access CiviMember</access_arguments>
+    <access_arguments>view my contact</access_arguments>
   </item>
   <item>
     <path>civicrm/send-membercard</path>
