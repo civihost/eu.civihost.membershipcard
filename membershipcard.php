@@ -84,6 +84,18 @@ function membershipcard_civicrm_summaryActions(&$actions, $contactID)
 function membershipcard_civicrm_pageRun(&$page) {
   $pageName = get_class($page);
   if ($pageName == 'CRM_Contact_Page_View_UserDashBoard') {
-    CRM_Membershipcard_Contact_Page_View_UserDashBoard::pageRun($page);
+    //CRM_Membershipcard_Contact_Page_View_UserDashBoard::pageRun($page);
+    $contact_id = $page->_contactId;
+    $page->assign('membershipcard_download', CRM_Utils_System::url('civicrm/membercard', 'cid=' . $contact_id . '&cs=' . CRM_Contact_BAO_Contact_Utils::generateChecksum($contact_id)));
+
+    $smarty = CRM_Core_Smarty::singleton();
+    $dashboardElements = $smarty->get_template_vars()['dashboardElements'];
+    $dashboardElements[] = [
+      'class' => 'crm-dashboard-membershipcard',
+      'sectionTitle' => E::ts('Membership Card'),
+      'templatePath' => 'CRM/Membershipcard/Contact/Page/View/UserDashBoard/Membershipcard.tpl',
+      'rows' => [],
+    ];
+    $smarty->assign('dashboardElements', $dashboardElements);
   }
 }

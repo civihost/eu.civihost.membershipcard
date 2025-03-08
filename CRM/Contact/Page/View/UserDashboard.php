@@ -1,11 +1,8 @@
 <?php
 
 use CRM_Membershipcard_ExtensionUtil as E;
-
+/*
 class CRM_Membershipcard_Contact_Page_View_UserDashBoard {
-  /**
-   * @see emembercard_civicrm_pageRun()
-   */
   public static function pageRun(&$page) {
     //if (!Civi::settings()->get('emembercard_contact_dashboard')) {
     //  return;
@@ -20,9 +17,6 @@ class CRM_Membershipcard_Contact_Page_View_UserDashBoard {
       'rows' => [],
     ]);
   }
-  /**
-   *
-   */
   private static function addElement($element) {
     $smarty = CRM_Core_Smarty::singleton();
     $dashboardElements = $smarty->get_template_vars()['dashboardElements'];
@@ -30,3 +24,4 @@ class CRM_Membershipcard_Contact_Page_View_UserDashBoard {
     $smarty->assign('dashboardElements', $dashboardElements);
   }
 }
+*/
