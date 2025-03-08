@@ -14,10 +14,10 @@ class CRM_Membershipcard_Utils_Memberships
    */
   public static function currentYear()
   {
-    if (time() > strtotime(date('Y') . '-' . CRM_Membershipcard_Utils_Config::get('memberships.year_starts_from'))) {
+    $year = date('Y');
+    $year_starts_from = CRM_Membershipcard_Utils_Config::get('memberships.year_starts_from');
+    if ($year_starts_from && time() > strtotime(date('Y') . '-' . $year_starts_from)) {
       $year = date('Y') + 1;
-    } else {
-      $year = date('Y');
     }
     return $year;
   }
@@ -54,7 +54,7 @@ class CRM_Membershipcard_Utils_Memberships
       where
         {$membership_where}
         and status_id_1.is_active = 1
-        and contribution.contribution_status_id = {$contributionCompletedStatusId}
+        and (contribution.contribution_status_id = {$contributionCompletedStatusId} or contribution.id is null)
         ";
 
     $result = [];
@@ -95,7 +95,6 @@ class CRM_Membershipcard_Utils_Memberships
         foreach($custom_contact as $k => $v) {
             $membership[str_replace('.', '_', $k)] = $v;
         }
-            $membership['Sede_di_studio_Sede'] = 'SH.ASUS Bozen (BBB)';
     }
 
 
@@ -140,7 +139,6 @@ class CRM_Membershipcard_Utils_Memberships
 
     // 'Membership Card' page format
     $pageFormat = CRM_Membershipcard_Utils_Config::get('memberships.card.page_format');
-    Civi::log()->debug('page_format: ' . $pageFormat);
 
     $pdf = CRM_Utils_PDF_Utils::html2pdf($content, $fileName, $output, $pageFormat);
     if ($output) {

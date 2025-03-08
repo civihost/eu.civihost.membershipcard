@@ -85,5 +85,5 @@
   <p id="barcode"><img src="{$barcode}"></p>
   <p id="nome">{$first_name} {$last_name}</p>
   <p id="chapter-info">{$Sede_di_studio_Sede}</p>
-  <p id="data">{$receive_date|date_format:"%d/%m/%Y"}</p>
+  <p id="data">{$end_date|date_format:"%d/%m/%Y"}</p>
 </main>

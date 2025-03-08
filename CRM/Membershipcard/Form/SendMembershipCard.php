@@ -83,7 +83,7 @@ class CRM_Membershipcard_Form_SendMembershipCard extends CRM_Core_Form
     $values = $this->exportValues();
     // Civi::log()->debug('postProcess', array('values' => $values));
 
-    $results = civicrm_api4('Chapter', 'sendCard', [
+    $results = civicrm_api4('Membershipcard', 'sendCard', [
       'contact_id' => $values['contact_id'],
       'membership_id' => null,
       'year' => $values['year'],
