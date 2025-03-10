@@ -9,6 +9,8 @@ if (file_exists($autoload)) {
 
 use CRM_Membershipcard_ExtensionUtil as E;
 
+$membershipcard_template_id = false;
+
 /**
  * Implements hook_civicrm_config().
  *
@@ -41,6 +43,10 @@ function membershipcard_civicrm_enable(): void {
  */
 function membershipcard_civicrm_summaryActions(&$actions, $contactID)
 {
+  if (!$contactID) {
+    return;
+  }
+
   $currentYear = CRM_Membershipcard_Utils_Memberships::currentYear();
   $years = [];
 
@@ -79,12 +85,35 @@ function membershipcard_civicrm_summaryActions(&$actions, $contactID)
 }
 
 /**
+ * Implements hook_civicrm_navigationMenu().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
+ */
+/* @todo Now settings are in defined in settings.php
+function membershipcard_civicrm_navigationMenu(&$menu) {
+  _membershipcard_civix_insert_navigation_menu($menu, 'Administer/CiviMember', [
+    'label' => E::ts('Membership Card'),
+    'name' => 'membershipcard_setting',
+    'url' => 'civicrm/admin/setting/membershipcard',
+    'permission' => 'administer CiviCRM',
+    'operator' => 'OR',
+    'separator' => 0,
+  ]);
+  _membershipcard_civix_navigationMenu($menu);
+}
+*/
+
+/**
  * Implements hook_civicrm_pageRun().
  */
 function membershipcard_civicrm_pageRun(&$page) {
   $pageName = get_class($page);
   if ($pageName == 'CRM_Contact_Page_View_UserDashBoard') {
-    //CRM_Membershipcard_Contact_Page_View_UserDashBoard::pageRun($page);
+
+    if (!CRM_Membershipcard_Utils_Config::get('enable_user_dashboard')) {
+      return;
+    }
+
     $contact_id = $page->_contactId;
     $page->assign('membershipcard_download', CRM_Utils_System::url('civicrm/membercard', 'cid=' . $contact_id . '&cs=' . CRM_Contact_BAO_Contact_Utils::generateChecksum($contact_id)));
 
@@ -97,5 +126,40 @@ function membershipcard_civicrm_pageRun(&$page) {
       'rows' => [],
     ];
     $smarty->assign('dashboardElements', $dashboardElements);
+  }
+}
+
+/**
+ * Implements hook_civicrm_alterMailParams().
+ *
+ * @param $params
+ * @param $context
+ *
+ * @throws \CRM_Core_Exception
+ * @throws \CiviCRM_API3_Exception
+ */
+function membershipcard_civicrm_alterMailParams(&$params, $context)
+{
+  global $membershipcard_template_id;
+  CRM_Membershipcard_Mailer::alterMailParams($params, $context, $membershipcard_template_id);
+}
+
+/**
+ * Implements hook_civicrm_validateForm().
+ *
+ * @param string $formName
+ * @param array $fields
+ * @param array $files
+ * @param CRM_Core_Form $form
+ * @param array $errors
+ *
+ * @see https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_validateForm
+ */
+function membershipcard_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
+  global $membershipcard_template_id;
+  if ($formName == 'CRM_Contact_Form_Task_Email') {
+    if (!empty($fields['template'])) {
+      $membershipcard_template_id = $fields['template'];
+    }
   }
 }

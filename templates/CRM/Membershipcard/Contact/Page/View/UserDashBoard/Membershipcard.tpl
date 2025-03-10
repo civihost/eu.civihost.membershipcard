@@ -1,6 +1,6 @@
 {crmScope extensionKey="membershipcard"}
   <div class="crm-submit-buttons">
-    <a class="button" href="{$membershipcard_download}">Download tessera</a>
+    <a class="button" href="{$membershipcard_download}">{ts}Download{/ts}</a>
   </div>
 {/crmScope}
 

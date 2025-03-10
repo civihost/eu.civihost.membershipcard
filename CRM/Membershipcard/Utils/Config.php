@@ -12,6 +12,7 @@ class CRM_Membershipcard_Utils_Config
   public static function get($key, $default = null)
   {
     $session = CRM_Core_Session::singleton();
+    // @todo remove comment below
     //if (!$session->get('CRM_Membershipcard_Utils_Config_Settings')) {
       $session->set('CRM_Membershipcard_Utils_Config_Settings', include(__DIR__ . '/../../../settings.php'));
     //}

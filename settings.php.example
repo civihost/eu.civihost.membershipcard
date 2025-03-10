@@ -1,0 +1,17 @@
+<?php
+return [
+  'memberships' => [
+    //'year_starts_from' => '12-01', // mm-dd
+    'card' => [
+      'url' => 'https://www.civihost.it/user/assets/membershipcard.png',
+      'page_format' => 1028,
+      'template' => 73,
+      'barcode_text' => 'https://www.organization.tld/profile/?id={contact.contact_id}&{contact.checksum}',
+      'custom_fields' => [
+      ],
+    ],
+  ],
+  'enable_user_dashboard' => true,
+  'attach_to_templates' => [
+  ],
+];
