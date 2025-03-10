@@ -169,7 +169,7 @@ class CRM_Membershipcard_Mailer
     $pdf_filename = CRM_Core_Config::singleton()->templateCompileDir . CRM_Utils_File::makeFileName($fileName);
     file_put_contents($pdf_filename, $pdfContent);
 
-    return [ [
+    return [[
       'fullPath' => $pdf_filename,
       'mime_type' => 'application/pdf',
       'cleanName' => $fileName,
@@ -194,7 +194,7 @@ class CRM_Membershipcard_Mailer
 
     $messageTemplateIDs = CRM_Membershipcard_Utils_Config::get('attach_to_templates');
 
-    if (!array_key_exists($template_id, $messageTemplateIDs)) {
+    if (!in_array($template_id, $messageTemplateIDs)) {
       return;
     }
 
@@ -207,6 +207,27 @@ class CRM_Membershipcard_Mailer
     $params['attachments'] = array_merge($params['attachments'] ?? [], self::createAttachment($membership));
   }
 
+  /**
+   * Retrieve the message template ID based on various parameters.
+   * Based on org.civicoop.templateattachments, thanks!
+   *
+   * This function determines the message template ID by checking several potential sources
+   * in the given order of precedence:
+   * 1. Directly from the 'messageTemplateID' in the $params array.
+   * 2. From the $validateForm_template_id if provided.
+   * 3. By querying the database using the 'job_id' from the $params array.
+   * 4. By querying the database using 'groupName' and 'valueName' from the $params array,
+   *    specifically for 'msg_tpl_workflow_contribution' group.
+   *
+   * @param array $params
+   *   An associative array of parameters which may contain 'messageTemplateID', 'job_id',
+   *   'groupName', and 'valueName' keys.
+   * @param mixed $validateForm_template_id
+   *   A fallback template ID to use if not found in $params.
+   *
+   * @return mixed
+   *   The ID of the message template if found, otherwise false.
+   */
   public static function getTemplateID($params, $validateForm_template_id)
   {
     $template_id = false;

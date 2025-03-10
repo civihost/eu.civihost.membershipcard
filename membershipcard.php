@@ -55,12 +55,13 @@ function membershipcard_civicrm_summaryActions(&$actions, $contactID)
     $years[] = $currentYear;
   }
 
-  if ($currentYear > date('Y')) {
-    $membership = CRM_Membershipcard_Utils_Memberships::getContactActiveMembership($contactID, null, date('Y'));
-    if ($membership) {
-      $years[] = date('Y');
-    }
-  }
+  // @todo How to download membership card for the previous year
+  // if ($currentYear > date('Y')) {
+  //   $membership = CRM_Membershipcard_Utils_Memberships::getContactActiveMembership($contactID, null, date('Y'));
+  //   if ($membership) {
+  //     $years[] = date('Y');
+  //   }
+  // }
 
   foreach ($years as $y) {
     $actions['otherActions']['download_membercard_' . $y] = [

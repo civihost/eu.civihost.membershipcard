@@ -41,6 +41,7 @@ class CRM_Membershipcard_Utils_Memberships
       $membership_where = "m.contact_id = {$contact_id}";
     }
 
+    // @todo How to handle the year parameter: now we assume that membership is active and is current
     $sql = "select m.*,
       c.first_name, c.last_name,
       contribution.receive_date,
@@ -53,7 +54,7 @@ class CRM_Membershipcard_Utils_Memberships
       left outer join civicrm_contribution as contribution on contribution.id = p.contribution_id
       where
         {$membership_where}
-        and status_id_1.is_active = 1
+        and status_id_1.is_active = 1 and status_id_1.is_current_member = 1
         and (contribution.contribution_status_id = {$contributionCompletedStatusId} or contribution.id is null)
         ";
 
